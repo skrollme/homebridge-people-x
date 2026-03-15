@@ -10,7 +10,7 @@ var FakeGatoHistoryService;
 const EPOCH_OFFSET = 978307200;
 
 var Service, Characteristic, HomebridgeAPI;
-module.exports = function(homebridge) {
+module.exports = function (homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
   HomebridgeAPI = homebridge;
@@ -25,36 +25,36 @@ module.exports = function(homebridge) {
 // PeoplePlatform
 // #######################
 
-function PeoplePlatform(log, config){
+function PeoplePlatform(log, config) {
   this.log = log;
   this.threshold = config.threshold || 15;
-  this.anyoneSensor = ((typeof(config.anyoneSensor) != 'undefined' && config.anyoneSensor !== null)?config.anyoneSensor:true);
-  this.nooneSensor = ((typeof(config.nooneSensor) != 'undefined' && config.nooneSensor !== null)?config.nooneSensor:true);
+  this.anyoneSensor = ((typeof (config.anyoneSensor) != 'undefined' && config.anyoneSensor !== null) ? config.anyoneSensor : true);
+  this.nooneSensor = ((typeof (config.nooneSensor) != 'undefined' && config.nooneSensor !== null) ? config.nooneSensor : true);
   this.webhookPort = config.webhookPort || 51828;
   this.cacheDirectory = config.cacheDirectory || HomebridgeAPI.user.persistPath();
   this.pingInterval = config.pingInterval || 10000;
   this.ignoreReEnterExitSeconds = config.ignoreReEnterExitSeconds || 0;
   this.people = config.people;
   this.storage = require('node-persist');
-  this.storage.initSync({ dir:this.cacheDirectory });
+  this.storage.initSync({ dir: this.cacheDirectory });
   this.webhookQueue = [];
 }
 
 PeoplePlatform.prototype = {
 
-  accessories: function(callback) {
+  accessories: function (callback) {
     this.accessories = [];
     this.peopleAccessories = [];
-    for(var i = 0; i < this.people.length; i++){
+    for (var i = 0; i < this.people.length; i++) {
       var peopleAccessory = new PeopleAccessory(this.log, this.people[i], this);
       this.accessories.push(peopleAccessory);
       this.peopleAccessories.push(peopleAccessory);
     }
-    if(this.anyoneSensor) {
+    if (this.anyoneSensor) {
       this.peopleAnyOneAccessory = new PeopleAllAccessory(this.log, SENSOR_ANYONE, this);
       this.accessories.push(this.peopleAnyOneAccessory);
     }
-    if(this.nooneSensor) {
+    if (this.nooneSensor) {
       this.peopleNoOneAccessory = new PeopleAllAccessory(this.log, SENSOR_NOONE, this);
       this.accessories.push(this.peopleNoOneAccessory);
     }
@@ -63,7 +63,7 @@ PeoplePlatform.prototype = {
     this.startServer();
   },
 
-  startServer: function() {
+  startServer: function () {
     //
     // HTTP webserver code influenced by benzman81's great
     // homebridge-http-webhooks homebridge plugin.
@@ -83,14 +83,14 @@ PeoplePlatform.prototype = {
       }).on('end', (() => {
         body = Buffer.concat(body).toString();
 
-        response.on('error', function(err) {
+        response.on('error', function (err) {
           this.log('WebHook error: %s.', err);
         });
 
         response.statusCode = 200;
         response.setHeader('Content-Type', 'application/json');
 
-        if(!theUrlParams.sensor || !theUrlParams.state) {
+        if (!theUrlParams.sensor || !theUrlParams.state) {
           response.statusCode = 404;
           response.setHeader('Content-Type', 'text/plain');
           var errorText = 'WebHook error: No sensor or state specified in request.';
@@ -104,14 +104,16 @@ PeoplePlatform.prototype = {
           var responseBody = {
             success: true,
           };
-          for(var i = 0; i < this.peopleAccessories.length; i++){
+          for (var i = 0; i < this.peopleAccessories.length; i++) {
             var peopleAccessory = this.peopleAccessories[i];
             var target = peopleAccessory.target;
-            if(peopleAccessory.name.toLowerCase() === sensor) {
+            if (peopleAccessory.name.toLowerCase() === sensor) {
               this.clearWebhookQueueForTarget(target);
-              this.webhookQueue.push({ 'target': target, 'newState': newState, 'timeoutvar': setTimeout((() =>{
-                this.runWebhookFromQueueForTarget(target);
-              }),  peopleAccessory.ignoreReEnterExitSeconds * 1000) });
+              this.webhookQueue.push({
+                'target': target, 'newState': newState, 'timeoutvar': setTimeout((() => {
+                  this.runWebhookFromQueueForTarget(target);
+                }), peopleAccessory.ignoreReEnterExitSeconds * 1000),
+              });
               break;
             }
           }
@@ -123,10 +125,10 @@ PeoplePlatform.prototype = {
     this.log('WebHook: Started server on port \'%s\'.', this.webhookPort);
   },
 
-  clearWebhookQueueForTarget: function(target) {
+  clearWebhookQueueForTarget: function (target) {
     for (var i = 0; i < this.webhookQueue.length; i++) {
       var webhookQueueEntry = this.webhookQueue[i];
-      if(webhookQueueEntry.target == target) {
+      if (webhookQueueEntry.target == target) {
         clearTimeout(webhookQueueEntry.timeoutvar);
         this.webhookQueue.splice(i, 1);
         break;
@@ -134,10 +136,10 @@ PeoplePlatform.prototype = {
     }
   },
 
-  runWebhookFromQueueForTarget: function(target) {
+  runWebhookFromQueueForTarget: function (target) {
     for (var i = 0; i < this.webhookQueue.length; i++) {
       var webhookQueueEntry = this.webhookQueue[i];
-      if(webhookQueueEntry.target == target) {
+      if (webhookQueueEntry.target == target) {
         this.log('Running hook for ' + target + ' -> ' + webhookQueueEntry.newState);
         this.webhookQueue.splice(i, 1);
         this.storage.setItemSync('lastWebhook_' + target, Date.now());
@@ -147,10 +149,10 @@ PeoplePlatform.prototype = {
     }
   },
 
-  getPeopleAccessoryForTarget: function(target) {
-    for(var i = 0; i < this.peopleAccessories.length; i++){
+  getPeopleAccessoryForTarget: function (target) {
+    for (var i = 0; i < this.peopleAccessories.length; i++) {
       var peopleAccessory = this.peopleAccessories[i];
-      if(peopleAccessory.target === target) {
+      if (peopleAccessory.target === target) {
         return peopleAccessory;
       }
     }
@@ -239,21 +241,21 @@ function PeopleAccessory(log, config, platform) {
   this.service.addCharacteristic(SensitivityCharacteristic);
   this.service
     .getCharacteristic(SensitivityCharacteristic)
-    .on('get', (callback) =>{
+    .on('get', (callback) => {
       callback(null, 4);
     });
 
   this.service.addCharacteristic(DurationCharacteristic);
   this.service
     .getCharacteristic(DurationCharacteristic)
-    .on('get', (callback) =>{
+    .on('get', (callback) => {
       callback(null, 5);
     });
 
   this.accessoryService = new Service.AccessoryInformation;
   this.accessoryService
     .setCharacteristic(Characteristic.Name, this.name)
-    .setCharacteristic(Characteristic.SerialNumber, 'hps-'+this.name.toLowerCase())
+    .setCharacteristic(Characteristic.SerialNumber, 'hps-' + this.name.toLowerCase())
     .setCharacteristic(Characteristic.Manufacturer, 'Elgato');
 
   this.historyService = new FakeGatoHistoryService('motion', {
@@ -267,12 +269,19 @@ function PeopleAccessory(log, config, platform) {
 
   this.initStateCache();
 
-  if(this.pingInterval > -1) {
+  this.historyService.addEntry(
+    {
+      time: moment().unix(),
+      status: (this.stateCache) ? 1 : 0,
+    },
+  );
+
+  if (this.pingInterval > -1) {
     this.ping();
   }
 }
 
-PeopleAccessory.encodeState = function(state) {
+PeopleAccessory.encodeState = function (state) {
   if (state) {
     return Characteristic.OccupancyDetected.OCCUPANCY_DETECTED;
   } else {
@@ -280,11 +289,11 @@ PeopleAccessory.encodeState = function(state) {
   }
 };
 
-PeopleAccessory.prototype.getState = function(callback) {
+PeopleAccessory.prototype.getState = function (callback) {
   callback(null, PeopleAccessory.encodeState(this.stateCache));
 };
 
-PeopleAccessory.prototype.getLastActivation = function(callback) {
+PeopleAccessory.prototype.getLastActivation = function (callback) {
   var lastSeenUnix = this.platform.storage.getItemSync('lastSuccessfulPing_' + this.target);
   if (lastSeenUnix) {
     var lastSeenMoment = moment(lastSeenUnix).unix();
@@ -294,17 +303,17 @@ PeopleAccessory.prototype.getLastActivation = function(callback) {
   }
 };
 
-PeopleAccessory.prototype.identify = function(callback) {
-  this.log('Identify: '+this.name);
+PeopleAccessory.prototype.identify = function (callback) {
+  this.log('Identify: ' + this.name);
   callback();
 };
 
-PeopleAccessory.prototype.initStateCache = function() {
+PeopleAccessory.prototype.initStateCache = function () {
   var isActive = this.isActive();
   this.stateCache = isActive;
 };
 
-PeopleAccessory.prototype.isActive = function() {
+PeopleAccessory.prototype.isActive = function () {
   var lastSeenUnix = this.platform.storage.getItemSync('lastSuccessfulPing_' + this.target);
   if (lastSeenUnix) {
     var lastSeenMoment = moment(lastSeenUnix);
@@ -314,14 +323,14 @@ PeopleAccessory.prototype.isActive = function() {
   return false;
 };
 
-PeopleAccessory.prototype.ping = function() {
-  if(this.webhookIsOutdated()) {
-    ping.sys.probe(this.target, (state) =>{
-      if(this.webhookIsOutdated()) {
+PeopleAccessory.prototype.ping = function () {
+  if (this.webhookIsOutdated()) {
+    ping.sys.probe(this.target, (state) => {
+      if (this.webhookIsOutdated()) {
         if (state) {
           this.platform.storage.setItemSync('lastSuccessfulPing_' + this.target, Date.now());
         }
-        if(this.successfulPingOccurredAfterWebhook()) {
+        if (this.successfulPingOccurredAfterWebhook()) {
           var newState = this.isActive();
           this.setNewState(newState);
         }
@@ -333,7 +342,7 @@ PeopleAccessory.prototype.ping = function() {
   }
 };
 
-PeopleAccessory.prototype.webhookIsOutdated = function() {
+PeopleAccessory.prototype.webhookIsOutdated = function () {
   var lastWebhookUnix = this.platform.storage.getItemSync('lastWebhook_' + this.target);
   if (lastWebhookUnix) {
     var lastWebhookMoment = moment(lastWebhookUnix);
@@ -343,13 +352,13 @@ PeopleAccessory.prototype.webhookIsOutdated = function() {
   return true;
 };
 
-PeopleAccessory.prototype.successfulPingOccurredAfterWebhook = function() {
+PeopleAccessory.prototype.successfulPingOccurredAfterWebhook = function () {
   var lastSuccessfulPing = this.platform.storage.getItemSync('lastSuccessfulPing_' + this.target);
-  if(!lastSuccessfulPing) {
+  if (!lastSuccessfulPing) {
     return false;
   }
   var lastWebhook = this.platform.storage.getItemSync('lastWebhook_' + this.target);
-  if(!lastWebhook) {
+  if (!lastWebhook) {
     return true;
   }
   var lastSuccessfulPingMoment = moment(lastSuccessfulPing);
@@ -357,28 +366,28 @@ PeopleAccessory.prototype.successfulPingOccurredAfterWebhook = function() {
   return lastSuccessfulPingMoment.isAfter(lastWebhookMoment);
 };
 
-PeopleAccessory.prototype.setNewState = function(newState) {
+PeopleAccessory.prototype.setNewState = function (newState) {
   var oldState = this.stateCache;
   if (oldState != newState) {
     this.stateCache = newState;
     this.service.getCharacteristic(Characteristic.MotionDetected).updateValue(PeopleAccessory.encodeState(newState));
 
-    if(this.platform.peopleAnyOneAccessory) {
+    if (this.platform.peopleAnyOneAccessory) {
       this.platform.peopleAnyOneAccessory.refreshState();
     }
 
-    if(this.platform.peopleNoOneAccessory) {
+    if (this.platform.peopleNoOneAccessory) {
       this.platform.peopleNoOneAccessory.refreshState();
     }
 
     var lastSuccessfulPingMoment = 'none';
     var lastWebhookMoment = 'none';
     var lastSuccessfulPing = this.platform.storage.getItemSync('lastSuccessfulPing_' + this.target);
-    if(lastSuccessfulPing) {
+    if (lastSuccessfulPing) {
       lastSuccessfulPingMoment = moment(lastSuccessfulPing).format();
     }
     var lastWebhook = this.platform.storage.getItemSync('lastWebhook_' + this.target);
-    if(lastWebhook) {
+    if (lastWebhook) {
       lastWebhookMoment = moment(lastWebhook).format();
     }
 
@@ -391,14 +400,14 @@ PeopleAccessory.prototype.setNewState = function(newState) {
   }
 };
 
-PeopleAccessory.prototype.getServices = function() {
+PeopleAccessory.prototype.getServices = function () {
 
   var servicesList = [this.service];
 
-  if(this.historyService) {
+  if (this.historyService) {
     servicesList.push(this.historyService);
   }
-  if(this.accessoryService) {
+  if (this.accessoryService) {
     servicesList.push(this.accessoryService);
   }
 
@@ -423,43 +432,43 @@ function PeopleAllAccessory(log, name, platform) {
   this.accessoryService = new Service.AccessoryInformation;
   this.accessoryService
     .setCharacteristic(Characteristic.Name, this.name)
-    .setCharacteristic(Characteristic.SerialNumber, (this.name === SENSOR_NOONE)?'hps-noone':'hps-all')
+    .setCharacteristic(Characteristic.SerialNumber, (this.name === SENSOR_NOONE) ? 'hps-noone' : 'hps-all')
     .setCharacteristic(Characteristic.Manufacturer, 'Elgato');
 }
 
-PeopleAllAccessory.prototype.getState = function(callback) {
+PeopleAllAccessory.prototype.getState = function (callback) {
   callback(null, PeopleAccessory.encodeState(this.getStateFromCache()));
 };
 
-PeopleAllAccessory.prototype.identify = function(callback) {
-  this.log('Identify: '+this.name);
+PeopleAllAccessory.prototype.identify = function (callback) {
+  this.log('Identify: ' + this.name);
   callback();
 };
 
-PeopleAllAccessory.prototype.getStateFromCache = function() {
+PeopleAllAccessory.prototype.getStateFromCache = function () {
   var isAnyoneActive = this.getAnyoneStateFromCache();
-  if(this.name === SENSOR_NOONE) {
+  if (this.name === SENSOR_NOONE) {
     return !isAnyoneActive;
   } else {
     return isAnyoneActive;
   }
 };
 
-PeopleAllAccessory.prototype.getAnyoneStateFromCache = function() {
-  for(var i = 0; i < this.platform.peopleAccessories.length; i++){
+PeopleAllAccessory.prototype.getAnyoneStateFromCache = function () {
+  for (var i = 0; i < this.platform.peopleAccessories.length; i++) {
     var peopleAccessory = this.platform.peopleAccessories[i];
     var isActive = peopleAccessory.stateCache;
-    if(isActive) {
+    if (isActive) {
       return true;
     }
   }
   return false;
 };
 
-PeopleAllAccessory.prototype.refreshState = function() {
+PeopleAllAccessory.prototype.refreshState = function () {
   this.service.getCharacteristic(Characteristic.OccupancyDetected).updateValue(PeopleAccessory.encodeState(this.getStateFromCache()));
 };
 
-PeopleAllAccessory.prototype.getServices = function() {
+PeopleAllAccessory.prototype.getServices = function () {
   return [this.service, this.accessoryService];
 };
