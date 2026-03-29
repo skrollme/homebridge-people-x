@@ -181,7 +181,7 @@ function PeopleAccessory(log, config, platform) {
         format: HomebridgeAPI.hap.Formats.UINT32,
         unit: HomebridgeAPI.hap.Units.SECONDS,
         perms: [
-          HomebridgeAPI.hap.Perms.READ,
+          HomebridgeAPI.hap.Perms.PAIRED_READ,
           HomebridgeAPI.hap.Perms.NOTIFY,
         ],
       });
@@ -197,9 +197,9 @@ function PeopleAccessory(log, config, platform) {
         maxValue: 7,
         validValues: [0, 4, 7],
         perms: [
-          Characteristic.Perms.READ,
-          Characteristic.Perms.NOTIFY,
-          Characteristic.Perms.WRITE,
+          HomebridgeAPI.hap.Perms.PAIRED_READ,
+          HomebridgeAPI.hap.Perms.NOTIFY,
+          HomebridgeAPI.hap.Perms.PAIRED_WRITE,
         ],
       });
     }
@@ -219,9 +219,9 @@ function PeopleAccessory(log, config, platform) {
           1 * 3600, 2 * 3600, 3 * 3600, 5 * 3600, 10 * 3600, 12 * 3600, 15 * 3600,
         ],
         perms: [
-          HomebridgeAPI.hap.Perms.READ,
+          HomebridgeAPI.hap.Perms.PAIRED_READ,
           HomebridgeAPI.hap.Perms.NOTIFY,
-          HomebridgeAPI.hap.Perms.WRITE,
+          HomebridgeAPI.hap.Perms.PAIRED_WRITE,
         ],
       });
     }

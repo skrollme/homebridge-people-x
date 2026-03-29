@@ -35,7 +35,7 @@
     }
   ],
   "dependencies": {
-    "fakegato-history": "^0.5.0",
+    "fakegato-history": "^0.6.7",
     "moment": "^2.11.2",
     "node-persist": "0.0.8",
     "ping": "^0.1.10",
