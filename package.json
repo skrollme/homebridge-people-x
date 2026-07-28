@@ -12,7 +12,7 @@
   },
   "engines": {
     "homebridge": "^1.6.0 || ^2.0.0-beta.0",
-    "node": "^18.20.4 || ^20.15.1 || ^22"
+    "node": "^18.20.4 || ^20.15.1 || ^22.0.0 || ^24.0.0"
   },
   "author": "skrollme <github@skroll.me>",
   "license": "ISC",
@@ -38,13 +38,12 @@
     "fakegato-history": "^0.6.7",
     "moment": "^2.11.2",
     "node-persist": "0.0.8",
-    "ping": "^0.1.10",
-    "request": "^2.79.0"
+    "ping": "^0.1.10"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
     "@types/eslint__js": "^8.42.3",
-    "@types/node": "^22.8.6",
+    "@types/node": "^24.0.0",
     "eslint": "^9.30.0",
     "homebridge": "^2.0.0-beta.0",
     "nodemon": "^3.1.7",

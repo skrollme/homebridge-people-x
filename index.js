@@ -1,6 +1,5 @@
 var ping = require('ping');
 var moment = require('moment');
-var request = require('request');
 var http = require('http');
 var url = require('url');
 var DEFAULT_REQUEST_TIMEOUT = 10000;
