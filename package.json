@@ -12,7 +12,7 @@
   },
   "engines": {
     "homebridge": "^1.6.0 || ^2.0.0-beta.0",
-    "node": "^18.20.4 || ^20.15.1 || ^22.0.0 || ^24.0.0"
+    "node": "^22.0.0 || ^24.0.0"
   },
   "author": "skrollme <github@skroll.me>",
   "license": "ISC",
@@ -45,7 +45,7 @@
     "@types/eslint__js": "^8.42.3",
     "@types/node": "^24.0.0",
     "eslint": "^9.30.0",
-    "homebridge": "^2.0.0-beta.0",
+    "homebridge": "^2.0.0",
     "nodemon": "^3.1.7",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
