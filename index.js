@@ -2,11 +2,9 @@ var ping = require('ping');
 var moment = require('moment');
 var http = require('http');
 var url = require('url');
-var DEFAULT_REQUEST_TIMEOUT = 10000;
 var SENSOR_ANYONE = 'Anyone';
 var SENSOR_NOONE = 'No One';
 var FakeGatoHistoryService;
-const EPOCH_OFFSET = 978307200;
 
 var Service, Characteristic, HomebridgeAPI;
 module.exports = function (homebridge) {
@@ -82,7 +80,7 @@ PeoplePlatform.prototype = {
       }).on('end', (() => {
         body = Buffer.concat(body).toString();
 
-        response.on('error', function (err) {
+        response.on('error', (err) => {
           this.log('WebHook error: %s.', err);
         });
 
@@ -98,7 +96,7 @@ PeoplePlatform.prototype = {
           response.end();
         } else {
           var sensor = theUrlParams.sensor.toLowerCase();
-          var newState = (theUrlParams.state == 'true');
+          var newState = (theUrlParams.state === 'true');
           this.log('Received hook for ' + sensor + ' -> ' + newState);
           var responseBody = {
             success: true,
@@ -127,7 +125,7 @@ PeoplePlatform.prototype = {
   clearWebhookQueueForTarget: function (target) {
     for (var i = 0; i < this.webhookQueue.length; i++) {
       var webhookQueueEntry = this.webhookQueue[i];
-      if (webhookQueueEntry.target == target) {
+      if (webhookQueueEntry.target === target) {
         clearTimeout(webhookQueueEntry.timeoutvar);
         this.webhookQueue.splice(i, 1);
         break;
@@ -138,7 +136,7 @@ PeoplePlatform.prototype = {
   runWebhookFromQueueForTarget: function (target) {
     for (var i = 0; i < this.webhookQueue.length; i++) {
       var webhookQueueEntry = this.webhookQueue[i];
-      if (webhookQueueEntry.target == target) {
+      if (webhookQueueEntry.target === target) {
         this.log('Running hook for ' + target + ' -> ' + webhookQueueEntry.newState);
         this.webhookQueue.splice(i, 1);
         this.storage.setItemSync('lastWebhook_' + target, Date.now());
@@ -174,7 +172,7 @@ function PeopleAccessory(log, config, platform) {
   this.stateCache = false;
 
   class LastActivationCharacteristic extends Characteristic {
-    constructor(accessory) {
+    constructor() {
       super('LastActivation', 'E863F11A-079E-48FF-8F27-9C2605A29F52');
       this.setProps({
         format: HomebridgeAPI.hap.Formats.UINT32,
@@ -188,7 +186,7 @@ function PeopleAccessory(log, config, platform) {
   }
 
   class SensitivityCharacteristic extends Characteristic {
-    constructor(accessory) {
+    constructor() {
       super('Sensitivity', 'E863F120-079E-48FF-8F27-9C2605A29F52');
       this.setProps({
         format: HomebridgeAPI.hap.Formats.UINT8,
@@ -205,7 +203,7 @@ function PeopleAccessory(log, config, platform) {
   }
 
   class DurationCharacteristic extends Characteristic {
-    constructor(accessory) {
+    constructor() {
       super('Duration', 'E863F12D-079E-48FF-8F27-9C2605A29F52');
       this.setProps({
         format: HomebridgeAPI.hap.Formats.UINT16,
@@ -367,7 +365,7 @@ PeopleAccessory.prototype.successfulPingOccurredAfterWebhook = function () {
 
 PeopleAccessory.prototype.setNewState = function (newState) {
   var oldState = this.stateCache;
-  if (oldState != newState) {
+  if (oldState !== newState) {
     this.stateCache = newState;
     this.service.getCharacteristic(Characteristic.MotionDetected).updateValue(PeopleAccessory.encodeState(newState));
 
