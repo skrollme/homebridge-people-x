@@ -1,6 +1,9 @@
 name: Build
 
-on: [push, pull_request]
+on:
+    push:
+        branches: [master]
+    pull_request:
 
 jobs:
     build:
@@ -20,3 +23,6 @@ jobs:
 
             - name: Install dependencies
               run: npm install
+
+            - name: Lint the project
+              run: npm run lint

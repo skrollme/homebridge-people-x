@@ -5,6 +5,8 @@ export default tseslint.config(
   {
     ignores: ['dist/**'],
   },
+  eslint.configs.recommended,
+  ...tseslint.configs.recommended,
   {
     rules: {
       'quotes': ['error', 'single'],
@@ -20,19 +22,21 @@ export default tseslint.config(
       'max-len': ['warn', 200],
       'object-curly-spacing': ['error', 'always'],
       'no-use-before-define': 'off',
-      '@typescript-eslint/no-use-before-define': ['error', { 'classes': false, 'enums': false }],
+      '@typescript-eslint/no-use-before-define': ['error', { 'functions': false, 'classes': false, 'enums': false }],
+      '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { 'caughtErrors': 'none' }],
     },
   },
   {
     languageOptions: {
       ecmaVersion: 2022,
-      sourceType: 'module',
+      sourceType: 'commonjs',
       globals: {
         // Node.js globals
         Buffer: 'readonly',
         URLSearchParams: 'readonly',
         setTimeout: 'readonly',
+        clearTimeout: 'readonly',
         module: 'readonly',
         require: 'readonly',
         __dirname: 'readonly',
@@ -42,6 +46,4 @@ export default tseslint.config(
       },
     },
   },
-  eslint.configs.recommended,
-  ...tseslint.configs.recommended,
 );

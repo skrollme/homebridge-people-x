@@ -98,3 +98,4 @@ Thanks to everyone who's helped contribute code, feedback and support.  In parti
 * [wr](https://github.com/wr) - for adding in webhook support.
 * [benzman81](https://github.com/benzman81) - for porting the plugin over to be a Platform and improving how ping and webhooks work together, and numerous other fixes.
 * [banboobee](https://github.com/banboobee) - for additional changes to improve homebridge 2 support and a history-fix for the moment after homebridge-restart
+* [omgitsalexl](https://github.com/omgitsalexl) - for improving homebridge 2 support and adding node 24 compatibility
